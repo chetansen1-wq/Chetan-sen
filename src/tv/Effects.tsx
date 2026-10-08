@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {continueRender, delayRender, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import React, {useLayoutEffect, useRef, useState} from 'react';
+import {Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {clamp, ease, rnd} from '../anim';
 import {CUE} from '../cues';
 import {C, f} from '../theme';
@@ -47,43 +47,43 @@ export const Sweep: React.FC = () => {
   );
 };
 
-/** canvas-masked glint: a white band travelling across the TV's own VIR letters only. */
+/**
+ * glint: a white band travelling across the TV's own VIR letters only. Drawn on a canvas and
+ * clipped with the letter alpha mask ('destination-in'); the mask is an <Img>, so Remotion waits
+ * for it to load before capturing any frame.
+ */
 export const Glint: React.FC = () => {
   const fr = useCurrentFrame();
-  const [img, setImg] = useState<HTMLImageElement | null>(null);
-  const [handle] = useState(() => delayRender('glint mask'));
-  useEffect(() => {
-    const im = new Image();
-    im.onload = () => {
-      setImg(im);
-      continueRender(handle);
-    };
-    im.onerror = () => continueRender(handle);
-    im.src = staticFile('masks/vir.png');
-  }, [handle]);
-  const ref = React.useRef<HTMLCanvasElement>(null);
   const {x, y, w, h} = TVC.vir;
   const s = f(CUE.glint);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const cvRef = useRef<HTMLCanvasElement>(null);
   const active = fr >= s && fr <= s + 16;
-  useEffect(() => {
-    const cv = ref.current;
-    if (!cv || !img) return;
+  const [loaded, setLoaded] = useState(false);
+  useLayoutEffect(() => {
+    const cv = cvRef.current, im = imgRef.current;
+    if (!cv || !im) return;
     const ctx = cv.getContext('2d')!;
+    ctx.globalCompositeOperation = 'source-over';
     ctx.clearRect(0, 0, w, h);
-    if (!active) return;
+    if (!active || !loaded) return;
     const t = interpolate(fr, [s, s + 16], [0, 1], {...clamp, easing: ease});
     const cx = -0.4 * w + t * 1.8 * w;
-    const g = ctx.createLinearGradient(cx - 70, 0, cx + 70, h * 0.35);
+    const g = ctx.createLinearGradient(cx - 60, 0, cx + 20, h);
     g.addColorStop(0, 'rgba(255,255,255,0)');
     g.addColorStop(0.5, 'rgba(255,255,255,0.95)');
     g.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
     ctx.globalCompositeOperation = 'destination-in';
-    ctx.drawImage(img, 0, 0, w, h);
-  }, [fr, img, active, s, w, h]);
-  return <canvas ref={ref} width={w} height={h} style={{position: 'absolute', left: x, top: y, width: w, height: h, filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.8))'}} />;
+    ctx.drawImage(im, 0, 0, w, h);
+  }, [fr, active, loaded, s, w, h]);
+  return (
+    <div style={{position: 'absolute', left: x, top: y, width: w, height: h}}>
+      <Img ref={imgRef} onLoad={() => setLoaded(true)} src={staticFile('masks/vir.png')} style={{position: 'absolute', inset: 0, width: w, height: h, opacity: 0}} />
+      <canvas ref={cvRef} width={w} height={h} style={{position: 'absolute', inset: 0, width: w, height: h}} />
+    </div>
+  );
 };
 
 /** 18.2: electric arc jumping V <-> IR where the TV's "=" appears, plus a 4-frame bloom. */

@@ -36,7 +36,7 @@ export const CUE = {
   heat: [35.0, 38.5],
 
   // S5 factors affecting resistance
-  pan: [38.5, 39.5],
+  pan: [38.5, 39.5], // no camera pan in this footage (TV corner moves <2 px/frame); the presenter turns
   card4: 39.3,
   tvCut4: 39.2,
   tickLAT: 39.4, // brief 39.0 - TV is still on the heating slide until 39.2; LAT appears 39.3-39.4

@@ -4,7 +4,7 @@
  */
 export const TVC = {
   /** VIR letters box (glint mask public/masks/vir.png covers exactly this box) */
-  vir: {x: 830, y: 222, w: 185, h: 100},
+  vir: {x: 830, y: 214, w: 185, h: 100},
   /** arc endpoints: right side of V -> left side of I, where the "=" lands */
   arcFrom: [852, 284] as [number, number],
   arcTo: [924, 284] as [number, number],

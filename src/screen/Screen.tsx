@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {clamp, ease, enterExit, sp} from '../anim';
 import {CUE} from '../cues';
-import {anton, C, f, grotesk, stix} from '../theme';
+import {anton, C, ensureFonts, f, grotesk, stix} from '../theme';
 import {Center, Chip, Pill, Reveal} from './ui';
 
 /*
@@ -324,6 +324,9 @@ const S6: React.FC = () => {
 };
 
 export const Screen: React.FC = () => {
+  // load fonts only in tabs that actually render text (never at module level: Remotion's
+  // metadata tab evaluates the bundle too, and an orphaned handle there times out the render)
+  useState(() => ensureFonts());
   const fr = useCurrentFrame();
   const show = (a: number, b: number) => fr >= f(a) - 1 && fr <= f(b) + 8;
   return (

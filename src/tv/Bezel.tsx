@@ -56,9 +56,6 @@ export const Bezel: React.FC = () => {
   return (
     <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
       <defs>
-        <filter id="bz-glow" filterUnits="userSpaceOnUse" x={-200} y={-200} width={1480} height={2320}>
-          <feGaussianBlur stdDeviation={lk.width > 6 ? 7 : 5} />
-        </filter>
         <filter id="bz-shimmer" filterUnits="userSpaceOnUse" x={-200} y={-200} width={1480} height={2320}>
           <feTurbulence type="fractalNoise" baseFrequency="0.02 0.09" numOctaves={2} seed={Math.floor(frame / 2)} />
           <feDisplacementMap in="SourceGraphic" scale={lk.shimmer} />
@@ -73,7 +70,9 @@ export const Bezel: React.FC = () => {
         <path d={d} fill="none" stroke={col} strokeWidth={2} opacity={lk.base} />
         {[0, ...(second ? [PERIM / 2] : [])].map((o) => (
           <g key={o} opacity={lk.bright}>
-            <path d={d} fill="none" stroke={col} strokeWidth={lk.width * 2.2} strokeLinecap="round" filter="url(#bz-glow)" opacity={0.85} style={dash(o)} />
+            {/* glow = layered translucent strokes (SVG blur filters mis-render here) */}
+            <path d={d} fill="none" stroke={col} strokeWidth={lk.width * 5} strokeLinecap="round" opacity={0.1} style={dash(o)} />
+            <path d={d} fill="none" stroke={col} strokeWidth={lk.width * 3} strokeLinecap="round" opacity={0.2} style={dash(o)} />
             <path d={d} fill="none" stroke={col} strokeWidth={lk.width} strokeLinecap="round" style={dash(o)} />
             <path d={d} fill="none" stroke="#ffffff" strokeWidth={Math.max(1.5, lk.width * 0.35)} strokeLinecap="round" opacity={0.9}
               style={{strokeDasharray: `${lk.len * 0.25} ${PERIM - lk.len * 0.25}`, strokeDashoffset: -(pos + o) + lk.len * 0.25}} />

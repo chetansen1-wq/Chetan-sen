@@ -1,5 +1,4 @@
-import {loadFont} from '@remotion/fonts';
-import {staticFile} from 'remotion';
+import {continueRender, delayRender, staticFile} from 'remotion';
 
 export const FPS = 25;
 export const W = 1080;
@@ -34,9 +33,28 @@ const fontFiles: [string, string, string, string, string?][] = [
     ]),
   ),
 ];
-fontFiles.forEach(([family, file, weight, style, unicodeRange]) => {
-  loadFont({family, url: staticFile(`fonts/${file}.woff2`), weight, style, format: 'woff2', unicodeRange});
-});
+let fontsRequested = false;
+/**
+ * Load the faces once per tab (called by screen-space components only; the TV layer has no text).
+ * The handle is always released - a FontFace promise that never settles must not stall a render.
+ */
+export const ensureFonts = () => {
+  if (fontsRequested || typeof document === 'undefined') return;
+  fontsRequested = true;
+  const handle = delayRender('fonts', {timeoutInMilliseconds: 60000});
+  let done = false;
+  const release = () => {
+    if (!done) {
+      done = true;
+      continueRender(handle);
+    }
+  };
+  const faces = fontFiles.map(([family, file, weight, style, unicodeRange]) =>
+    new FontFace(family, `url(${staticFile(`fonts/${file}.woff2`)}) format('woff2')`, {weight, style, ...(unicodeRange ? {unicodeRange} : {})}),
+  );
+  Promise.allSettled(faces.map((ff) => ff.load().then(() => document.fonts.add(ff)))).then(release);
+  setTimeout(release, 20000);
+};
 
 export const anton = 'Anton, sans-serif';
 export const grotesk = '"Space Grotesk", sans-serif';
