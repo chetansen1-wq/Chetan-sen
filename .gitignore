@@ -1,0 +1,6 @@
+pipeline/work/
+node_modules/
+# large / reproducible media (pipeline/prep.sh + pipeline/composite.sh regenerate them)
+public/footage.mp4
+public/base.mp4
+out/debug_quad.mp4

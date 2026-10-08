@@ -1,0 +1,25 @@
+{
+  "name": "eureka-reel",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render:tv": "remotion render src/index.ts TVLayer pipeline/work/tv_layer.mov",
+    "render:screen": "remotion render src/index.ts ScreenLayer pipeline/work/screen_layer.mov"
+  },
+  "dependencies": {
+    "@fontsource/anton": "^5.1.0",
+    "@fontsource/space-grotesk": "^5.1.0",
+    "@fontsource/stix-two-text": "^5.1.0",
+    "@remotion/cli": "^4.0.300",
+    "@remotion/fonts": "^4.0.300",
+    "@remotion/google-fonts": "^4.0.300",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.300"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "typescript": "^5.6.3"
+  }
+}
